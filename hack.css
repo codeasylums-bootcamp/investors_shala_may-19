@@ -1,0 +1,49 @@
+body{
+	background-color:#000;
+}
+.headings{
+	text-align:center;
+	font-family: 'Annie Use Your Telescope';
+	color:#DFD;
+}
+h1{
+	font-size:40px;
+}
+.desc0{
+	background-color:#EEE;
+	text-align:center;
+}
+.desc1{
+	background-color:#CCC;
+		text-align:center;
+}
+.special{
+	display:block;
+	font-size:20px;
+	color:#fff;
+	margin:0 auto;
+	text-align:center;
+	text-decoration:none;
+}
+table{
+	height:300px;
+	width:100%;
+	  border: 1px solid black;
+}
+td,th{
+		  border: 1px solid black;
+		  font-size:12px;
+}
+
+.container-fluid{
+	background:url("https://coolbackgrounds.io/images/backgrounds/index/sea-edge-79ab30e2.png");
+	background-size: cover;
+    background-repeat: no-repeat;
+}
+
+footer{
+	height:50px;
+	text-align:center;
+	line-height:50px;
+bottom:0;	
+}
