@@ -24,66 +24,77 @@ for(let x in stockArray){
 	`;
 	dropList.appendChild(newElement);
 }
-function g(count,x){
+function g(count,x,ind){
 	y=parseInt(x.price);
-	Highcharts.stockChart('container'+count, {
-    chart: {
-        events: {
-            load: function () {
+	let chart=Highcharts.chart('container'+count, {
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: x.name+" Stock Price"
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                    'Updated Live' : 'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                    text: 'Stock Value'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
 
-                // set up the updating of the chart each second
-                var series = this.series[0];
-                
-            }
-        }
-    },
-   backgroundColor: '#DDDDDD',
-    time: {
-        useUTC: false
-    },
-
-    rangeSelector: {
-        buttons: [{
-            count: 1,
-            type: 'minute',
-            text: '1M'
-        }, {
-            count: 5,
-            type: 'minute',
-            text: '5M'
-        }, {
-            type: 'all',
-            text: 'All'
-        }],
-        inputEnabled: false,
-        selected: 0
-    },
-
-    title: {
-        text: x.name
-    },
-
-    exporting: {
-        enabled: false
-    },
-
-    series: [{
-        name: x.name+" Stocks",
-        data: (function () {
-			var data = [];
-			for (i = -99999; i <=0; i++) {       
-                time = (new Date()).getTime(),
-                data.push([
-                    time + i * 1000,
-                    (y+Math.random()*2-1)
-                ]);
-            }
-            return data;
-        }())
-    }]
-});
-
-}
+            series: [{
+                type: 'area',
+                name: x.name+" Stock Price",
+                data: []
+            }]
+        });
+	    let checkB=document.getElementById("check"+ind);
+			var interval=setInterval(function(){
+				if(!checkB.checked){clearInterval(interval);}
+				let url="https://api.worldtradingdata.com/api/v1/stock?symbol="+stockArray[ind].symbol+"&api_token=OwH8mbbaPDMZS8BqC4gEScDwftHfS3JEI1Ca6gx7n4Ekl5LnmiEc5MRH8IF1";
+				axios.get(url)
+				.then(function(response){	
+			    console.log(response);
+				chart.series[0].addPoint(
+				[(new Date()).getTime(),parseFloat(response.data.data[0].price)]
+				);
+				})
+				.catch(function(error){console.log(error);});
+				},30000);
+    }
 let count=0;
  function f(x,c)
  {
@@ -107,8 +118,7 @@ let count=0;
 		v.appendChild(p);
 	}	
  }
- function list(data){
-	 console.log(data);
+ function list(data,ind){
 	 count++;
 	 let stocks=document.getElementById("stockList");
 	let newStock=document.createElement("div");
@@ -124,14 +134,14 @@ let count=0;
       <div class="card-body">
 	  <table id="table${count}">
 	  </table>
-      </div>
 	  <div id="container${count}" style="width:100%; height: 400px; margin: 0 auto;"></div>
     </div>
+      </div>  
 	`
 	newStock.className="card";
 	stocks.appendChild(newStock);
 	f(data,count);
-	g(count,data);
+	g(count,data,ind);
  }
  function req(ind){
 	 let checkB=document.getElementById("check"+ind);
@@ -141,13 +151,14 @@ let url="https://api.worldtradingdata.com/api/v1/stock?symbol="+stockArray[ind].
  axios.get(url)
  .then(function(response){	
 console.log(response); 
-	 list(response.data.data[0]);
+	 list(response.data.data[0],ind);
  })
  .catch(function(error){console.log(error);});
  }
  else{
 	 	 let deletedDiv=document.getElementById("heading"+stockArray[ind].div);
 		deletedDiv.innerHTML="";
+		let collapseDiv=document.getElementById("collapse"+stockArray[ind].div);
+		collapseDiv.innerHTML="";
  }
  }
-	
